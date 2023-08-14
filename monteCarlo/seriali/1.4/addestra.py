@@ -179,17 +179,16 @@ class GiocatoreCasuale():
 
 class Environment():
     def __init__(self, epsilon, decay):
-        importaDaFile = False
         path = os.getcwd()
         if os.path.exists(path+"/ia0.pk1"):
             if os.path.exists(path+"/ia1.pk1"):
                 if os.path.exists(path+"/infos.pk1"):
-                    importaDaFile = True
-        if importaDaFile:
-            self.importaDaFile(epsilon, decay)
+                    self.importaDaFile()
         else:
             self.giocatore0 = GiocatoreIA(epsilon, decay)
             self.giocatore1 = GiocatoreIA(epsilon, decay)
+            self.epsilon = epsilon
+            self.decay = decay
             self.tempoTotaleAddestramento = 0
             self.totalePartiteGiocateAddestramento = 0
         self.mazzo = Mazzo()
@@ -336,11 +335,15 @@ class Environment():
         totaleStatiEsplorati = len(self.giocatore0.ia)
         print("Totale stati esplorati:", totaleStatiEsplorati)
         print("Totale partite addestramento ia:", self.totalePartiteGiocateAddestramento)
-        dir = os.getcwd()
-        dimensioneIA0 = int((os.stat(dir+"/ia0.pk1").st_size)/(1024*1024))
-        dimensioneIA1 = int((os.stat(dir+"/ia1.pk1").st_size)/(1024*1024))
-        print("Dimensione ia0:", dimensioneIA0, "MB")
-        print("Dimensione ia1:", dimensioneIA1, "MB")
+        print("Epsilon attuale:", self.epsilon)
+        path = os.getcwd()
+        if os.path.exists(path+"/ia0.pk1"):
+            if os.path.exists(path+"/ia1.pk1"):
+                if os.path.exists(path+"/infos.pk1"):
+                    dimensioneIA0 = int((os.stat(path+"/ia0.pk1").st_size)/(1024*1024))
+                    dimensioneIA1 = int((os.stat(path+"/ia1.pk1").st_size)/(1024*1024))
+                    print("Dimensione ia0:", dimensioneIA0, "MB")
+                    print("Dimensione ia1:", dimensioneIA1, "MB")
 
     def simulaControGiocatoreCasuale(self, numeroPartite=10_000):
         print("Simulazione contro giocatore che fa mosse casuali")
@@ -355,7 +358,9 @@ class Environment():
             fp.close()
         with open("infos.pk1", "wb") as fp:
             infos = {"tempoTotaleAddestramento": self.tempoTotaleAddestramento,
-                     "totalePartiteGiocateAddestramento": self.totalePartiteGiocateAddestramento}
+                     "totalePartiteGiocateAddestramento": self.totalePartiteGiocateAddestramento,
+                     "epsilon": self.epsilon,
+                     "decay": self.decay}
             pickle.dump(infos, fp)
             fp.close()
         print("Finito di salvare")
@@ -365,7 +370,7 @@ class Environment():
         print("Dimensione ia0:", dimensioneIA0, "MB")
         print("Dimensione ia1:", dimensioneIA1, "MB")
 
-    def importaDaFile(self, epsilon, decay):
+    def importaDaFile(self):
         with open('ia0.pk1', 'rb') as fp:
             ia0 = pickle.load(fp)
             fp.close()
@@ -375,26 +380,35 @@ class Environment():
         with open("infos.pk1", "rb") as fp:
             infos = pickle.load(fp)
             fp.close()
-        self.giocatore0 = GiocatoreIA(epsilon, decay)
-        self.giocatore0.ia = ia0
-        self.giocatore1 = GiocatoreIA(epsilon, decay)
-        self.giocatore1.ia = ia1
         self.tempoTotaleAddestramento = infos["tempoTotaleAddestramento"]
         self.totalePartiteGiocateAddestramento = infos["totalePartiteGiocateAddestramento"]
+        self.epsilon = infos["epsilon"]
+        self.decay = infos["decay"]
+        self.giocatore0 = GiocatoreIA(self.epsilon, self.decay)
+        self.giocatore0.ia = ia0
+        self.giocatore1 = GiocatoreIA(self.epsilon, self.decay)
+        self.giocatore1.ia = ia1
         print("Finito di importare ia da file")
 
-epsilon = 0.4
-decay = 0.9
-oreAddestramento = 2
-env = Environment(epsilon, decay)
-inizio = time()
-while (time()-inizio) < oreAddestramento*60*60:
-    for _ in range(5):
-        env.addestraIA(numeroEpisodi=50_000) # dura circa una 20ina di secondi
-        os.system("clear")
-        env.printInfosAddestramento()
-        print()
-        env.simulaControGiocatoreCasuale()
-        print()
-        sleep(10) # pausa senno' fonde il pc
-    env.salvaIaSuFile()
+    def decrementaEpsilon(self, decrement=0.995):
+        self.epsilon *= decrement
+        self.giocatore0.epsilon = self.epsilon
+        self.giocatore1.epsilon = self.epsilon
+
+def addestra():
+    epsilon = 0.3
+    decay = 0.9
+    oreAddestramento = 3
+    env = Environment(epsilon, decay)
+    inizio = time()
+    while (time()-inizio) < oreAddestramento*60*60:
+        for _ in range(1):
+            env.addestraIA(numeroEpisodi=50_000) # dura circa una 20ina di secondi
+            os.system("clear")
+            env.printInfosAddestramento()
+            env.simulaControGiocatoreCasuale()
+            env.decrementaEpsilon()
+            sleep(10) # pausa senno' fonde il pc
+        env.salvaIaSuFile()
+
+addestra()

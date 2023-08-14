@@ -336,11 +336,14 @@ class Environment():
         totaleStatiEsplorati = len(self.giocatore0.ia)
         print("Totale stati esplorati:", totaleStatiEsplorati)
         print("Totale partite addestramento ia:", self.totalePartiteGiocateAddestramento)
-        dir = os.getcwd()
-        dimensioneIA0 = int((os.stat(dir+"/ia0.pk1").st_size)/(1024*1024))
-        dimensioneIA1 = int((os.stat(dir+"/ia1.pk1").st_size)/(1024*1024))
-        print("Dimensione ia0:", dimensioneIA0, "MB")
-        print("Dimensione ia1:", dimensioneIA1, "MB")
+        path = os.getcwd()
+        if os.path.exists(path+"/ia0.pk1"):
+            if os.path.exists(path+"/ia1.pk1"):
+                if os.path.exists(path+"/infos.pk1"):
+                    dimensioneIA0 = int((os.stat(path+"/ia0.pk1").st_size)/(1024*1024))
+                    dimensioneIA1 = int((os.stat(path+"/ia1.pk1").st_size)/(1024*1024))
+                    print("Dimensione ia0:", dimensioneIA0, "MB")
+                    print("Dimensione ia1:", dimensioneIA1, "MB")
 
     def simulaControGiocatoreCasuale(self, numeroPartite=10_000):
         print("Simulazione contro giocatore che fa mosse casuali")
