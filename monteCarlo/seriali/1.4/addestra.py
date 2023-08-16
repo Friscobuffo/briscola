@@ -390,7 +390,7 @@ class Environment():
         self.giocatore1.ia = ia1
         print("Finito di importare ia da file")
 
-    def decrementaEpsilon(self, decrement=0.995):
+    def decrementaEpsilon(self, decrement=0.993):
         self.epsilon *= decrement
         self.giocatore0.epsilon = self.epsilon
         self.giocatore1.epsilon = self.epsilon
@@ -398,11 +398,11 @@ class Environment():
 def addestra():
     epsilon = 0.3
     decay = 0.9
-    oreAddestramento = 3
+    oreAddestramento = 14
     env = Environment(epsilon, decay)
     inizio = time()
     while (time()-inizio) < oreAddestramento*60*60:
-        for _ in range(1):
+        for _ in range(4):
             env.addestraIA(numeroEpisodi=50_000) # dura circa una 20ina di secondi
             os.system("clear")
             env.printInfosAddestramento()
