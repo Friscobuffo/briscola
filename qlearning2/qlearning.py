@@ -91,8 +91,8 @@ class GiocatoreIA():
 
     def scegliAzione(self, stato):
         carteInMano = len(self.mano)
-        if carteInMano == 1: # non c'è nulla da scegliere
-            return 0 # l'unica carta in mano
+        if carteInMano == 1:
+            return 0
         if self.learn:
             if (random() < self.epsilon):
                 azione = randint(0,carteInMano-1)
@@ -157,9 +157,6 @@ class GiocatoreCasuale():
 
     def tira(self, *_):
         return self.mano.pop(0)
-
-    def aggiornaValoreStato(*_):
-        pass
 
     def statoCarta(self, carta):
         seme = int(carta/10)
