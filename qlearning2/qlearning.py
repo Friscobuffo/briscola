@@ -81,7 +81,7 @@ class GiocatoreIA():
             punti=1
         elif punti>=10:
             punti=2
-        return (seme, punti)
+        return (3*seme + punti,)
     
     def statoMano(self):
         statoMano = tuple()
@@ -165,7 +165,7 @@ class GiocatoreCasuale():
             punti=1
         elif punti>=10:
             punti=2
-        return (seme, punti)
+        return (3*seme + punti,)
     
     def statoMano(self):
         statoMano = tuple()
@@ -207,10 +207,8 @@ class Environment():
         # infos stato generico partita per l'ia
         self.briscola = int(self.cartaInFondo/10)
         self.puntiCartaInFondoAlmeno10 = (puntiCarta(self.cartaInFondo) >= 10)
-        self.uscitoAlmenoUnCaricoPerOgniSeme = [False, False, False, False] # uscito almeno un carico
-                                               #denara spade bastoni coppe
+        self.uscitoAlmenoUnCaricoPerOgniSeme = [False, False, False, False]
         self.fasciaBriscoleUscite = 0
-        
         # scelta di chi inizia
         turnoDelGiocatore0 = randint(0,1)
         if controGiocatoreCasuale:
@@ -329,6 +327,7 @@ class Environment():
             print(" - Percentuale pareggio:   [", 100*pareggiateDalGiocatore0/numeroEpisodi, "%]", sep="")
             sconfitteDelGiocatore0 = numeroEpisodi - vinteDalGiocatore0 - pareggiateDalGiocatore0
             print(" - Percentuale sconfitta:  [", 100*sconfitteDelGiocatore0/numeroEpisodi, "%]", sep="")
+            print()
 
     def printInfosAddestramento(self):
         secondi = int(self.tempoTotaleAddestramento)
@@ -411,17 +410,16 @@ def addestra():
     epsilon = 0.1
     decay = 0.9
     alpha = 0.2
-    oreAddestramento = 3
+    oreAddestramento = 1
     env = Environment(epsilon, decay, alpha)
     inizio = time()
     while (time()-inizio) < oreAddestramento*60*60:
-        for _ in range(4):
-            env.addestraIA(numeroEpisodi=50_000) # dura circa una 20ina di secondi
-            os.system("clear")
-            env.printInfosAddestramento()
-            env.simulaControGiocatoreCasuale()
-            #env.decrementaEpsilon()
-            sleep(10)
-        env.salvaIaSuFile()
+        env.addestraIA(numeroEpisodi=25_000) # dura circa una 10ina di secondi
+        os.system("clear")
+        env.printInfosAddestramento()
+        env.simulaControGiocatoreCasuale()
+        #env.decrementaEpsilon()
+        sleep(5)
+    env.salvaIaSuFile()
 
 addestra()
